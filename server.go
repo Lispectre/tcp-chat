@@ -29,11 +29,17 @@ func start_server() error {
       return err
     }
     
+    defer conn.Close()
+
     go func(c net.Conn){  
+      log.Printf("Connected: %v\n", c.LocalAddr().String())
       for {
-        message := make([]byte, 1000)
-        c.Read(message)
-        log.Println(c.LocalAddr().String() + " says: " + string(message))
+        var message []byte
+        _, err := c.Read(message)
+        if err != nil {
+          break
+        }
+        log.Printf("%v says: %v", c.LocalAddr().String(), string(message))
       }
     } (conn)
   }
